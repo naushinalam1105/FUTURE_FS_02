@@ -14,15 +14,15 @@ app.get("/", (req, res) => {
 });
 
 // ROUTES
-const leadroutes = require("./routes/leadroutes");
-app.use("/api/leads", leadroutes);
+const leadRoutes = require("./routes/leadRoutes");
+app.use("/api/leads", leadRoutes);
 
 // MONGO DB CONNECT
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected ✅"))
   .catch(err => console.log(err));
 
-// PORT (IMPORTANT FOR RENDER)
+// PORT (IMPORTANT for RENDER)
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
