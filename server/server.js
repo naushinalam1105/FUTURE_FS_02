@@ -14,8 +14,8 @@ app.get("/", (req, res) => {
 });
 
 // ROUTES
-const leadRoutes = require("./routes/leadRoutes");
-app.use("/api/leads", leadRoutes);
+const leadroutes = require("./routes/leadroutes");
+app.use("/api/leads", leadroutes);
 
 // MONGO DB CONNECT
 mongoose.connect(process.env.MONGO_URI)
