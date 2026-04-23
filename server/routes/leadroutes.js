@@ -2,17 +2,20 @@ const express = require("express");
 const router = express.Router();
 const Lead = require("../models/Lead");
 
-// TEST ROUTE
+// GET ALL LEADS
 router.get("/", async (req, res) => {
-  const leads = await Lead.find();
-  res.json(leads);
+  try {
+    const leads = await Lead.find();
+    res.json(leads);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
-module.exports = router;
-
+// ADD LEAD
 router.post("/add", async (req, res) => {
   try {
-    console.log("Incoming lead:", req.body); // 🔥 DEBUG LINE
+    console.log("Incoming lead:", req.body);
 
     const lead = new Lead(req.body);
     await lead.save();
@@ -34,14 +37,12 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// UPDATE LEAD STATUS
+// UPDATE LEAD
 router.put("/:id", async (req, res) => {
   try {
-    const { name, email, phone, source, status, notes } = req.body;
-
     const updatedLead = await Lead.findByIdAndUpdate(
       req.params.id,
-      { name, email, phone, source, status, notes },
+      req.body,
       { new: true }
     );
 
@@ -50,3 +51,5 @@ router.put("/:id", async (req, res) => {
     res.status(500).json(err);
   }
 });
+
+module.exports = router;
