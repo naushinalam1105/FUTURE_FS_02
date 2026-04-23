@@ -25,7 +25,7 @@ function App() {
 
   const fetchLeads = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/leads");
+      const res = await axios.get("https://future-fs-02-iwlq.onrender.com/api/leads");
       setLeads(res.data);
     } catch (err) {
       console.log(err);
@@ -38,7 +38,7 @@ function App() {
 
   const addLead = async () => {
     try {
-      await axios.post("http://localhost:5000/api/leads/add", form);
+      await axios.post("https://future-fs-02-iwlq.onrender.com/api/leads/add", form);
       setForm({ name: "", email: "", phone: "", source: "", notes: "" });
       fetchLeads();
     } catch (err) {
@@ -48,7 +48,7 @@ function App() {
 
   const deleteLead = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/leads/${id}`);
+      await axios.delete(`https://future-fs-02-iwlq.onrender.com/api/leads/${id}`);
       fetchLeads();
     } catch (err) {
       console.log(err);
@@ -57,7 +57,7 @@ function App() {
 
   const updateStatus = async (id, status) => {
     try {
-      await axios.put(`http://localhost:5000/api/leads/${id}`, { status });
+      await axios.put(`https://future-fs-02-iwlq.onrender.com/api/leads/${id}`, { status });
       fetchLeads();
     } catch (err) {
       console.log(err);
@@ -67,7 +67,7 @@ function App() {
   const updateLead = async () => {
     try {
       await axios.put(
-        `http://localhost:5000/api/leads/${editingId}`,
+        `https://future-fs-02-iwlq.onrender.com/api/leads/${editingId}`,
         form
       );
       setForm({ name: "", email: "", phone: "", source: "", notes: "" });
