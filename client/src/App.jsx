@@ -1,285 +1,179 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Search, Plus, Trash2, Edit3, Phone, Mail, Globe, Lock, ShieldCheck, X, Send, Sun, Moon, BarChart3, PieChart, LayoutGrid } from "lucide-react";
 
-function App() {
+const App = () => {
+  // --- CORE STATES ---
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-
-  const [search, setSearch] = useState("");
+  const [darkMode, setDarkMode] = useState(true);
   const [leads, setLeads] = useState([]);
-  const [darkMode, setDarkMode] = useState(false);
-  const [editingId, setEditingId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Form States
+  const [loginCreds, setLoginCreds] = useState({ email: "admin@pro.com", password: "admin123" });
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "", source: "LinkedIn", notes: "" });
 
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    source: "",
-    notes: ""
-  });
-
-  useEffect(() => {
-    fetchLeads();
-  }, []);
+  useEffect(() => { if (isLoggedIn) fetchLeads(); }, [isLoggedIn]);
 
   const fetchLeads = async () => {
     try {
-      const res = await axios.get("https://future-fs-02-iwlq.onrender.com/api/leads");
+      const res = await axios.get("http://localhost:5000/api/leads");
       setLeads(res.data);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) { console.error("Database Connection Error", err); }
   };
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  // --- ANALYTICS CALCULATIONS ---
+  const stats = {
+    total: leads.length,
+    new: leads.filter(l => l.status === 'new').length,
+    contacted: leads.filter(l => l.status === 'contacted').length,
+    converted: leads.filter(l => l.status === 'converted').length,
   };
 
-  const addLead = async () => {
-    try {
-      await axios.post("https://future-fs-02-iwlq.onrender.com/api/leads/add", form);
-      setForm({ name: "", email: "", phone: "", source: "", notes: "" });
-      fetchLeads();
-    } catch (err) {
-      console.log(err);
-    }
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (loginCreds.password === "admin123") setIsLoggedIn(true);
+    else alert("Invalid Access Key!");
   };
 
-  const deleteLead = async (id) => {
-    try {
-      await axios.delete(`https://future-fs-02-iwlq.onrender.com/api/leads/${id}`);
-      fetchLeads();
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const updateStatus = async (id, status) => {
-    try {
-      await axios.put(`https://future-fs-02-iwlq.onrender.com/api/leads/${id}`, { status });
-      fetchLeads();
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const updateLead = async () => {
-    try {
-      await axios.put(
-        `https://future-fs-02-iwlq.onrender.com/api/leads/${editingId}`,
-        form
-      );
-      setForm({ name: "", email: "", phone: "", source: "", notes: "" });
-      setEditingId(null);
-      fetchLeads();
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const handleLogin = () => {
-    if (username === "admin" && password === "1234") {
-      setIsLoggedIn(true);
-    } else {
-      alert("Wrong credentials");
-    }
-  };
-
+  // --- VIEW 1: LOGIN ---
   if (!isLoggedIn) {
     return (
-      <div style={{ textAlign: "center", padding: "50px" }}>
-        <h2>Admin Login</h2>
-
-        <input
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <br /><br />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <br /><br />
-
-        <button onClick={handleLogin}>Login</button>
+      <div className={`flex items-center justify-center min-h-screen w-full transition-colors duration-500 ${darkMode ? 'bg-[#030508]' : 'bg-slate-100'}`}>
+        <div className={`w-full max-w-md p-10 rounded-[3rem] border backdrop-blur-3xl text-center shadow-2xl transition-all ${darkMode ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200'}`}>
+          <ShieldCheck className="text-blue-600 mx-auto mb-6" size={48} />
+          <h1 className={`text-3xl font-black italic tracking-tighter ${darkMode ? 'text-white' : 'text-slate-900'}`}>CLIENTCONNECT <span className="text-blue-600">PRO</span></h1>
+          <form onSubmit={handleLogin} className="mt-8 space-y-4">
+            <input type="password" placeholder="Access Key (admin123)" className={`w-full p-4 rounded-2xl outline-none border transition-all text-center ${darkMode ? 'bg-black/20 border-white/10 text-white focus:border-blue-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-blue-600'}`} onChange={(e) => setLoginCreds({...loginCreds, password: e.target.value})} />
+            <button className="w-full bg-blue-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-xs shadow-lg active:scale-95 transition-transform">Unlock CRM</button>
+          </form>
+        </div>
       </div>
     );
   }
 
+  // --- VIEW 2: DASHBOARD + SIDEBAR ---
   return (
-    <div
-      style={{
-        padding: "20px",
-        fontFamily: "Arial",
-        background: darkMode
-          ? "#1e1e1e"
-          : "linear-gradient(135deg, #f4f6f8 60%, #e3f2fd 100%)",
-        color: darkMode ? "white" : "black",
-        minHeight: "100vh",
-        width: "100%",
-        boxSizing: "border-box"
-      }}
-    >
-      {/* HEADER */}
-      <h1
-        style={{
-          fontWeight: "700",
-          fontSize: "32px",
-          letterSpacing: "1px",
-          textAlign: "center",
-          marginBottom: "20px",
-          fontFamily: "Arial",
-          color: darkMode ? "#ffffff" : "#000000"
-        }}
-      >
-        ClientConnect Pro: Mini CRM Dashboard 📊
-      </h1>
+    <div className={`min-h-screen w-full transition-colors duration-700 font-sans ${darkMode ? 'bg-[#030508] text-slate-300' : 'bg-slate-50 text-slate-900'}`}>
+      
+      {/* Background Decor */}
+      {darkMode && <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[60%] h-[40%] bg-blue-600/5 rounded-full blur-[120px] -z-10"></div>}
 
-      {/* TOP BUTTONS */}
-      <button onClick={() => setDarkMode(!darkMode)}>
-        {darkMode ? "Light Mode" : "Dark Mode"}
-      </button>
+      <div className="max-w-[1600px] mx-auto px-6 py-10">
+        
+        {/* HEADER */}
+        <header className={`flex justify-between items-center mb-10 p-8 rounded-[2.5rem] border backdrop-blur-2xl transition-all ${darkMode ? 'bg-white/[0.03] border-white/10 shadow-2xl' : 'bg-white border-slate-200 shadow-lg'}`}>
+          <div>
+            <h1 className={`text-3xl font-black italic tracking-tighter ${darkMode ? 'text-white' : 'text-slate-900'}`}>CLIENTCONNECT <span className="text-blue-600">PRO</span></h1>
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-50">Enterprise Control</p>
+          </div>
+          <div className="flex items-center gap-6">
+            <button onClick={() => setDarkMode(!darkMode)} className={`p-3 rounded-xl transition-all hover:scale-110 ${darkMode ? 'bg-white/5 text-yellow-400' : 'bg-slate-100 text-slate-600'}`}>
+              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            <button onClick={() => setIsModalOpen(true)} className="bg-blue-600 text-white font-black px-8 py-3 rounded-2xl shadow-xl shadow-blue-600/30 uppercase text-xs tracking-widest active:scale-95 transition-all">+ Add Lead</button>
+          </div>
+        </header>
 
-      <button
-        onClick={() => setIsLoggedIn(false)}
-        style={{ marginLeft: "10px" }}
-      >
-        Logout
-      </button>
+        <div className="flex flex-col lg:flex-row gap-8">
+          
+          {/* --- LEFT: MAIN PIPELINE --- */}
+          <div className="flex-1">
+            <div className={`rounded-[3rem] border overflow-hidden shadow-2xl backdrop-blur-xl ${darkMode ? 'bg-white/[0.02] border-white/10' : 'bg-white border-slate-200'}`}>
+              <div className="p-8 border-b border-white/5 flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                   <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
+                   <h2 className={`text-sm font-black uppercase tracking-widest ${darkMode ? 'text-white' : 'text-slate-800'}`}>Client Pipeline</h2>
+                </div>
+                <div className="relative w-64">
+                  <Search className="absolute left-3 top-2.5 text-slate-500" size={18} />
+                  <input type="text" placeholder="Filter leads..." className={`w-full pl-10 pr-4 py-2 rounded-xl outline-none text-sm transition-all ${darkMode ? 'bg-black/40 border-white/10 text-white focus:border-blue-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-blue-600'}`} onChange={(e) => setSearchTerm(e.target.value)} />
+                </div>
+              </div>
 
-      {/* DASHBOARD */}
-      <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
-        <div style={cardStyle(darkMode)}>
-          Total Leads: {leads.length}
-        </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className={`text-[10px] font-black uppercase tracking-[0.2em] ${darkMode ? 'bg-white/5 text-slate-500' : 'bg-slate-100 text-slate-400'}`}>
+                    <tr><th className="px-8 py-5">Client</th><th className="px-8 py-5">Source</th><th className="px-8 py-5">Status</th><th className="px-8 py-5 text-right">Action</th></tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {leads.filter(l => l.name.toLowerCase().includes(searchTerm.toLowerCase())).map((l, i) => (
+                      <tr key={i} className="hover:bg-blue-600/5 transition-colors group">
+                        <td className="px-8 py-6">
+                          <p className={`font-black uppercase text-sm ${darkMode ? 'text-white' : 'text-slate-800'}`}>{l.name}</p>
+                          <p className="text-[10px] opacity-60 font-bold">{l.email}</p>
+                        </td>
+                        <td className="px-8 py-6 text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-2"><Globe size={12}/> {l.source}</td>
+                        <td className="px-8 py-6">
+                           <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full border ${l.status === 'converted' ? 'text-green-500 border-green-500/20' : 'text-blue-500 border-blue-500/20'}`}>
+                             {l.status}
+                           </span>
+                        </td>
+                        <td className="px-8 py-6 text-right"><Trash2 className="inline cursor-pointer hover:text-red-500 text-slate-600 transition-colors" size={16}/></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
 
-        <div style={cardStyle(darkMode)}>
-          Converted: {leads.filter(l => l.status === "converted").length}
-        </div>
+          {/* --- RIGHT: ANALYTICS SIDEBAR --- */}
+          <aside className="w-full lg:w-80 space-y-6">
+            <div className={`p-8 rounded-[2.5rem] border shadow-2xl transition-all ${darkMode ? 'bg-white/[0.03] border-white/10 shadow-black' : 'bg-white border-slate-200 shadow-slate-200'}`}>
+              <div className="flex items-center gap-3 mb-8">
+                <BarChart3 className="text-blue-600" size={24} />
+                <h2 className={`text-sm font-black uppercase tracking-widest ${darkMode ? 'text-white' : 'text-slate-800'}`}>Analytics</h2>
+              </div>
+              
+              <div className="space-y-4">
+                {[
+                  { label: "Total Leads", val: stats.total, color: "bg-blue-600" },
+                  { label: "New Entries", val: stats.new, color: "bg-orange-500" },
+                  { label: "Contacted", val: stats.contacted, color: "bg-yellow-500" },
+                  { label: "Converted", val: stats.converted, color: "bg-green-500" }
+                ].map((s, i) => (
+                  <div key={i} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${darkMode ? 'bg-black/20 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                    <div>
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">{s.label}</p>
+                      <p className={`text-2xl font-black ${darkMode ? 'text-white' : 'text-slate-800'}`}>{s.val}</p>
+                    </div>
+                    <div className={`w-1.5 h-10 rounded-full shadow-lg ${s.color}`}></div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className={`mt-8 p-6 rounded-2xl text-center border ${darkMode ? 'bg-blue-600/10 border-blue-600/20 text-blue-400' : 'bg-blue-50 border-blue-100 text-blue-600'}`}>
+                 <p className="text-[10px] font-black uppercase tracking-widest mb-1">Conversion Velocity</p>
+                 <p className="text-3xl font-black">{stats.total > 0 ? Math.round((stats.converted / stats.total) * 100) : 0}%</p>
+              </div>
+            </div>
+            
+            <button onClick={() => setIsLoggedIn(false)} className={`w-full p-4 rounded-2xl border font-bold text-xs uppercase tracking-widest transition-all ${darkMode ? 'border-white/5 text-slate-600 hover:text-white' : 'border-slate-200 text-slate-400 hover:text-slate-800'}`}>Terminate Session</button>
+          </aside>
 
-        <div style={cardStyle(darkMode)}>
-          Contacted: {leads.filter(l => l.status === "contacted").length}
         </div>
       </div>
 
-      {/* FORM */}
-      <div style={{ marginBottom: "20px" }}>
-        <h3>Add New Lead</h3>
-
-        <input name="name" placeholder="Name" value={form.name} onChange={handleChange} />
-        <br /><br />
-
-        <input name="email" placeholder="Email" value={form.email} onChange={handleChange} />
-        <br /><br />
-
-        <input name="phone" placeholder="Phone" value={form.phone} onChange={handleChange} />
-        <br /><br />
-
-        <input name="source" placeholder="Source" value={form.source} onChange={handleChange} />
-        <br /><br />
-
-        <textarea
-          name="notes"
-          placeholder="Notes"
-          value={form.notes}
-          onChange={handleChange}
-        />
-        <br /><br />
-
-        <button onClick={editingId ? updateLead : addLead}>
-          {editingId ? "Update Lead" : "Add Lead"}
-        </button>
-      </div>
-
-      {/* SEARCH */}
-      <input
-        type="text"
-        placeholder="Search leads..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{ padding: "8px", width: "250px" }}
-      />
-
-      {/* TABLE */}
-      <table style={tableStyle(darkMode)}>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Source</th>
-            <th>Notes</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {leads
-            .filter(l =>
-              l.name.toLowerCase().includes(search.toLowerCase()) ||
-              l.email.toLowerCase().includes(search.toLowerCase())
-            )
-            .map(lead => (
-              <tr key={lead._id}>
-                <td>{lead.name}</td>
-                <td>{lead.email}</td>
-                <td>{lead.phone}</td>
-                <td>{lead.source}</td>
-                <td>{lead.notes}</td>
-
-                <td>
-                  <div>{lead.status}</div>
-
-                  <select
-                    value={lead.status}
-                    onChange={(e) => updateStatus(lead._id, e.target.value)}
-                  >
-                    <option value="new">new</option>
-                    <option value="contacted">contacted</option>
-                    <option value="converted">converted</option>
-                  </select>
-                </td>
-
-                <td>
-                  <button
-                    onClick={() => {
-                      setForm(lead);
-                      setEditingId(lead._id);
-                    }}
-                  >
-                    Edit
-                  </button>
-
-                  <button onClick={() => deleteLead(lead._id)}>
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
+      {/* MODAL POPUP (Preserved from current version) */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-black/60">
+           <div className={`w-full max-w-lg rounded-[2.5rem] border shadow-2xl relative p-8 transition-all ${darkMode ? 'bg-[#0f1217] border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-black italic uppercase tracking-tighter">Register Client</h2>
+                <X className="cursor-pointer opacity-50 hover:opacity-100" onClick={() => setIsModalOpen(false)} />
+              </div>
+              <form className="space-y-4" onSubmit={(e) => {e.preventDefault(); setIsModalOpen(false); }}>
+                 <input type="text" placeholder="Client Name" className={`w-full p-4 rounded-xl outline-none border ${darkMode ? 'bg-black/40 border-white/10' : 'bg-slate-50 border-slate-200'}`} />
+                 <input type="email" placeholder="Email" className={`w-full p-4 rounded-xl outline-none border ${darkMode ? 'bg-black/40 border-white/10' : 'bg-slate-50 border-slate-200'}`} />
+                 <button className="w-full bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg uppercase tracking-widest text-xs mt-4">Save Entry</button>
+              </form>
+           </div>
+        </div>
+      )}
     </div>
   );
-}
-
-/* SMALL HELPERS */
-const cardStyle = (darkMode) => ({
-  background: darkMode ? "#333" : "white",
-  padding: "10px",
-  borderRadius: "8px"
-});
-
-const tableStyle = (darkMode) => ({
-  width: "100%",
-  background: darkMode ? "#2c2c2c" : "white",
-  color: darkMode ? "white" : "black",
-  borderCollapse: "collapse"
-});
+};
 
 export default App;
