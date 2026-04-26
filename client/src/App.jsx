@@ -27,7 +27,6 @@ const App = () => {
 
   const fetchLeads = async () => {
     try {
-      // Using full link for clarity
       const res = await axios.get("https://future-fs-02-v64z.onrender.com/api/leads");
       setLeads(res.data);
     } catch (err) { 
@@ -38,32 +37,40 @@ const App = () => {
   const handleAddLead = async (e) => {
     e.preventDefault();
     try {
-      // Using full link for clarity
       await axios.post("https://future-fs-02-v64z.onrender.com/api/leads", formData);
       setIsAddModalOpen(false);
       fetchLeads();
       setFormData({ name: "", email: "", phone: "", source: "LinkedIn", status: "new", notes: "" });
     } catch (err) { 
-      alert("Error adding lead. Check if backend is live."); 
+      alert("Error adding lead."); 
     }
   };
 
   const handleUpdateLead = async (e) => {
     e.preventDefault();
+    if (!editingLead?._id) return;
+
     try {
-      // Using full link for clarity
-      await axios.put(`https://future-fs-02-v64z.onrender.com/api/leads/${editingLead._id}`, editingLead);
-      setEditingLead(null);
-      fetchLeads();
+      // Sending specific data to the exact ID URL
+      await axios.put(`https://future-fs-02-v64z.onrender.com/api/leads/${editingLead._id}`, {
+        name: editingLead.name,
+        email: editingLead.email,
+        status: editingLead.status,
+        notes: editingLead.notes,
+        source: editingLead.source
+      });
+
+      setEditingLead(null); 
+      fetchLeads(); 
     } catch (err) { 
-      alert("Update failed"); 
+      console.error("Update error:", err);
+      alert("Update failed. Make sure your Backend PUT route matches the URL structure."); 
     }
   };
 
   const deleteLead = async (id) => {
     if (window.confirm("Permanent delete this record?")) {
       try {
-        // Using full link for clarity
         await axios.delete(`https://future-fs-02-v64z.onrender.com/api/leads/${id}`);
         fetchLeads();
       } catch (err) { 
@@ -85,13 +92,12 @@ const App = () => {
     return (
       <div className={`flex items-center justify-center min-h-screen w-full transition-all duration-500 ${darkMode ? 'bg-[#030508]' : 'bg-slate-100'}`}>
         <div className={`w-full max-w-md p-10 rounded-[3rem] border backdrop-blur-3xl shadow-2xl text-center transition-all ${darkMode ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200'}`}>
-          <div className="bg-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-600/40 animate-bounce">
+          <div className="bg-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-600/40">
             <ShieldCheck className="text-white" size={32} />
           </div>
           <h1 className={`text-3xl font-black italic tracking-tighter ${darkMode ? 'text-white' : 'text-slate-900'}`}>CLIENTCONNECT <span className="text-blue-600">PRO</span></h1>
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em] mt-3">Admin Gateway</p>
           <form onSubmit={(e) => { e.preventDefault(); if(loginCreds.password === "admin123") setIsLoggedIn(true); else alert("Wrong Key!"); }} className="mt-8 space-y-4">
-            <input type="password" placeholder="Access Key (admin123)" className={`w-full p-4 rounded-2xl text-center outline-none border transition-all ${darkMode ? 'bg-black/20 border-white/10 text-white focus:border-blue-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-blue-600'}`} onChange={(e) => setLoginCreds({...loginCreds, password: e.target.value})} />
+            <input type="password" placeholder="Access Key (admin123)" className={`w-full p-4 rounded-2xl text-center outline-none border transition-all ${darkMode ? 'bg-black/20 border-white/10 text-white focus:border-blue-500' : 'bg-slate-50 border-slate-200 text-slate-900'}`} onChange={(e) => setLoginCreds({...loginCreds, password: e.target.value})} />
             <button className="w-full bg-blue-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-xs shadow-lg hover:bg-blue-500 transition-all">Unlock System</button>
           </form>
         </div>
@@ -99,7 +105,6 @@ const App = () => {
     );
   }
 
-  // --- DASHBOARD VIEW ---
   return (
     <div className={`min-h-screen w-full transition-colors duration-700 ${darkMode ? 'bg-[#030508] text-slate-300' : 'bg-slate-50 text-slate-900'}`}>
       
@@ -177,10 +182,7 @@ const App = () => {
 
           <aside className="w-full lg:w-80 space-y-6">
             <div className={`p-8 rounded-[2.5rem] border shadow-2xl ${darkMode ? 'bg-white/[0.03] border-white/10' : 'bg-white border-slate-200'}`}>
-              <div className="flex items-center gap-3 mb-8">
-                <BarChart3 className="text-blue-600" size={20} />
-                <h2 className={`text-xs font-black uppercase tracking-widest ${darkMode ? 'text-white' : 'text-slate-800'}`}>Live Frequencies</h2>
-              </div>
+              <h2 className="text-xs font-black uppercase tracking-widest mb-8 text-blue-600">Analytics</h2>
               <div className="space-y-4">
                 {[
                   { label: "Total Leads", val: stats.total, color: "bg-blue-600" },
@@ -188,10 +190,10 @@ const App = () => {
                   { label: "Contacted", val: stats.contacted, color: "bg-yellow-500" },
                   { label: "Converted", val: stats.converted, color: "bg-green-500" }
                 ].map((s, idx) => (
-                  <div key={idx} className={`p-4 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-black/20 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                  <div key={idx} className="p-4 rounded-2xl border border-white/5 flex items-center justify-between">
                     <div>
                       <p className="text-[9px] font-black text-slate-500 uppercase">{s.label}</p>
-                      <p className={`text-2xl font-black ${darkMode ? 'text-white' : 'text-slate-800'}`}>{s.val}</p>
+                      <p className="text-2xl font-black">{s.val}</p>
                     </div>
                     <div className={`w-1 h-8 rounded-full ${s.color}`}></div>
                   </div>
@@ -202,7 +204,7 @@ const App = () => {
         </div>
       </div>
 
-      {/* ADD MODAL */}
+      {/* --- ADD MODAL --- */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-black/60">
           <div className={`w-full max-w-lg rounded-[2.5rem] border p-8 shadow-2xl relative ${darkMode ? 'bg-[#0f1217] border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
@@ -210,21 +212,14 @@ const App = () => {
             <form className="space-y-4" onSubmit={handleAddLead}>
               <input type="text" placeholder="Name" required className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50 border-slate-200'}`} onChange={(e) => setFormData({...formData, name: e.target.value})} />
               <input type="email" placeholder="Email" required className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50 border-slate-200'}`} onChange={(e) => setFormData({...formData, email: e.target.value})} />
-              
-              {/* --- NEW NOTES FIELD --- */}
-              <textarea 
-                placeholder="Internal Notes (e.g., Met at B.C. Roy ACM event...)" 
-                className={`w-full p-4 rounded-xl border outline-none h-24 resize-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50 border-slate-200'}`}
-                onChange={(e) => setFormData({...formData, notes: e.target.value})}
-              />
-
+              <textarea placeholder="Notes..." className={`w-full p-4 rounded-xl border outline-none h-24 resize-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50 border-slate-200'}`} onChange={(e) => setFormData({...formData, notes: e.target.value})} />
               <button className="w-full bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg uppercase text-xs tracking-widest mt-4">Save To Cloud</button>
             </form>
           </div>
         </div>
       )}
 
-      {/* EDIT MODAL */}
+      {/* --- EDIT MODAL --- */}
       {editingLead && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-black/60">
           <div className={`w-full max-w-lg rounded-[2.5rem] border p-8 shadow-2xl relative ${darkMode ? 'bg-[#0f1217] border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
@@ -234,14 +229,7 @@ const App = () => {
               <select value={editingLead.status} className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50 border-slate-200'}`} onChange={(e) => setEditingLead({...editingLead, status: e.target.value})}>
                 <option value="new">New</option><option value="contacted">Contacted</option><option value="converted">Converted</option>
               </select>
-
-              {/* --- EDIT NOTES FIELD --- */}
-              <textarea 
-                value={editingLead.notes} 
-                className={`w-full p-4 rounded-xl border outline-none h-24 resize-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50 border-slate-200'}`}
-                onChange={(e) => setEditingLead({...editingLead, notes: e.target.value})}
-              />
-
+              <textarea value={editingLead.notes} className={`w-full p-4 rounded-xl border outline-none h-24 resize-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50 border-slate-200'}`} onChange={(e) => setEditingLead({...editingLead, notes: e.target.value})} />
               <button className="w-full bg-green-600 text-white font-black py-4 rounded-xl shadow-lg uppercase text-xs tracking-widest mt-4">Commit Changes</button>
             </form>
           </div>
