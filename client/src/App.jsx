@@ -7,13 +7,17 @@ import {
 } from "lucide-react";
 
 const App = () => {
+  // --- CONFIG ---
+  // If your backend routes in server.js are app.use('/api/leads', leadRoutes)
+  const API_BASE = "https://future-fs-02-v64z.onrender.com/api/leads";
+
   // --- STATES ---
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [leads, setLeads] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [editingLead, setEditingLead] = useState(null); // State for Edit Modal
+  const [editingLead, setEditingLead] = useState(null); 
   
   const [loginCreds, setLoginCreds] = useState({ email: "", password: "" });
   const [formData, setFormData] = useState({ 
@@ -27,36 +31,44 @@ const App = () => {
 
   const fetchLeads = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/leads");
+      const res = await axios.get(API_BASE);
       setLeads(res.data);
-    } catch (err) { console.error("Fetch error", err); }
+    } catch (err) { 
+      console.error("Fetch error", err); 
+    }
   };
 
   const handleAddLead = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/leads", formData);
+      await axios.post(API_BASE, formData);
       setIsAddModalOpen(false);
       fetchLeads();
       setFormData({ name: "", email: "", phone: "", source: "LinkedIn", status: "new", notes: "" });
-    } catch (err) { alert("Error adding lead"); }
+    } catch (err) { 
+      alert("Error adding lead. Check if backend is live."); 
+    }
   };
 
   const handleUpdateLead = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/api/leads/${editingLead._id}`, editingLead);
+      await axios.put(`${API_BASE}/${editingLead._id}`, editingLead);
       setEditingLead(null);
       fetchLeads();
-    } catch (err) { alert("Update failed"); }
+    } catch (err) { 
+      alert("Update failed"); 
+    }
   };
 
   const deleteLead = async (id) => {
     if (window.confirm("Permanent delete this record?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/leads/${id}`);
+        await axios.delete(`${API_BASE}/${id}`);
         fetchLeads();
-      } catch (err) { alert("Delete failed"); }
+      } catch (err) { 
+        alert("Delete failed"); 
+      }
     }
   };
 
