@@ -1,100 +1,34 @@
-# ClientConnect Pro – Mini CRM System
+🚀 ClientConnect Pro - MERN CRM
+A professional, full-stack Lead Management System built for Task 2 of the Future Intern internship. This dashboard provides a high-tech "Command Center" experience for tracking client pipelines from entry to conversion.
 
-## 📌 Project Overview
+🔗 Live Demo: https://future-fs-02-puce-tau.vercel.app/
 
-ClientConnect Pro is a full-stack CRM (Customer Relationship Management) system built using the MERN stack. It allows users to manage client leads efficiently with features like adding, updating, deleting, and tracking lead status.
+💻 GitHub Repo: https://github.com/naushinalam1105/FUTURE_FS_02
 
----
+🛠️ Technical Implementation
+Frontend: React.js (Vite) with Tailwind CSS for a futuristic Glassmorphism UI.
 
-## 🚀 Features
+Backend: Node.js & Express.js handling REST API architecture.
 
-* Add new leads (Name, Email, Phone, Source, Notes)
-* View all leads in a structured table
-* Update lead status (New, Contacted, Converted)
-* Edit and delete leads
-* Search functionality
-* Dark mode toggle
-* Simple admin login system
+Database: MongoDB Atlas for cloud-based data persistence.
 
----
+Icons: Lucide-React for a clean, professional aesthetic.
 
-## 🛠️ Tech Stack
+✨ Core Functionalities
+Admin Access: Password-protected gateway (admin123).
 
-* Frontend: React (Vite)
-* Backend: Node.js + Express
-* Database: MongoDB
-* API: REST APIs using Axios
+Pipeline Management: Full CRUD operations (Create, Read, Update, Delete) for leads.
 
----
+Status Tracking: Organize clients into New, Contacted, or Converted categories.
 
-## ⚙️ Setup Instructions
+Internal Notes: Dedicated field for saving meeting summaries or follow-up details.
 
-### 1. Clone the Repository
+Live Analytics: Real-time frequency counters and conversion rate calculations.
 
-```bash
-git clone https://github.com/naushinalam1105/FUTURE_FS_02.git
-cd FUTURE_FS_02
-```
+Theme Engine: Seamless toggle between Dark and Light modes.
 
----
+🏗️ Architecture Brief
+The application utilizes the MERN stack to ensure a seamless "Full Stack Loop." When a user updates a lead on the Vercel-hosted frontend, the Render-hosted backend processes the request and updates the MongoDB Atlas cloud database in real-time. This ensures that data is always synced and persistent across all devices.
 
-### 2. Backend Setup
-
-```bash
-cd server
-npm install
-```
-
-Create a `.env` file:
-
-```
-MONGO_URI=mongodb://naushinalam_db_user:admin1234@ac-ybukap0-shard-00-00.1vxhohe.mongodb.net:27017,ac-ybukap0-shard-00-01.1vxhohe.mongodb.net:27017,ac-ybukap0-shard-00-02.1vxhohe.mongodb.net:27017/?ssl=true&replicaSet=atlas-eifs3d-shard-0&authSource=admin&appName=Cluster0
-```
-
-Run backend:
-
-```bash
-node server.js
-```
-
----
-
-### 3. Frontend Setup
-
-Open new terminal:
-
-```bash
-cd client
-npm install
-npm run dev
-```
-
----
-
-## 🌐 Local URLs
-
-* Frontend: http://localhost:5173
-* Backend: http://localhost:5000
-
----
-
-## 📦 Project Structure
-
-```
-client/ → React frontend  
-server/ → Express backend  
-models/ → MongoDB schemas  
-routes/ → API routes  
-```
-
----
-
-## 💡 Real-World Use
-
-This system can be used by small businesses or freelancers to manage client interactions and track leads effectively.
-
----
-
-## 👩‍💻 Author
-
-Naushin
+👤 Author
+Naushin Intern at Future Intern B.C. Roy Engineering College
