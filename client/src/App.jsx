@@ -47,6 +47,7 @@ const App = () => {
       await axios.post(API_BASE, formData);
       setIsAddModalOpen(false);
       fetchLeads();
+      // Reset form including status
       setFormData({ name: "", email: "", source: "LinkedIn", status: "new", notes: "" });
     } catch (err) { alert("Error adding lead"); }
   };
@@ -54,7 +55,14 @@ const App = () => {
   const handleUpdateLead = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`${API_BASE}/${editingLead._id}`, editingLead);
+      // Explicitly sending the fields to the backend
+      await axios.put(`${API_BASE}/${editingLead._id}`, {
+        name: editingLead.name,
+        email: editingLead.email,
+        status: editingLead.status,
+        notes: editingLead.notes,
+        source: editingLead.source
+      });
       setEditingLead(null);
       fetchLeads();
     } catch (err) { alert("Update failed"); }
@@ -174,7 +182,6 @@ const App = () => {
             </div>
           </div>
 
-          {/* --- UPDATED ANALYTICS SIDEBAR --- */}
           <aside className="w-full lg:w-80 space-y-6">
             <div className={`p-8 rounded-[2.5rem] border shadow-2xl ${darkMode ? 'bg-white/[0.03] border-white/10' : 'bg-white border-slate-200'}`}>
               <div className="flex items-center gap-3 mb-8">
@@ -214,6 +221,17 @@ const App = () => {
             <form className="space-y-4" onSubmit={handleAddLead}>
               <input type="text" placeholder="Name" required className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50'}`} onChange={(e) => setFormData({...formData, name: e.target.value})} />
               <input type="email" placeholder="Email" required className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50'}`} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+              
+              {/* Added Status Dropdown for Add Modal */}
+              <select 
+                className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50'}`} 
+                onChange={(e) => setFormData({...formData, status: e.target.value})}
+              >
+                <option value="new">New</option>
+                <option value="contacted">Contacted</option>
+                <option value="converted">Converted</option>
+              </select>
+
               <textarea placeholder="Client Notes..." className={`w-full p-4 rounded-xl border outline-none h-24 resize-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50'}`} onChange={(e) => setFormData({...formData, notes: e.target.value})} />
               <button className="w-full bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg uppercase text-xs tracking-widest mt-4">Save To Cloud</button>
             </form>
@@ -228,9 +246,18 @@ const App = () => {
             <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-black uppercase italic">Modify Data</h2><X className="cursor-pointer" onClick={() => setEditingLead(null)} /></div>
             <form className="space-y-4" onSubmit={handleUpdateLead}>
               <input type="text" value={editingLead.name} className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50'}`} onChange={(e) => setEditingLead({...editingLead, name: e.target.value})} />
-              <select value={editingLead.status} className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50'}`} onChange={(e) => setEditingLead({...editingLead, status: e.target.value})}>
-                <option value="new">New</option><option value="contacted">Contacted</option><option value="converted">Converted</option>
+              
+              {/* Status selector for editing */}
+              <select 
+                value={editingLead.status} 
+                className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50'}`} 
+                onChange={(e) => setEditingLead({...editingLead, status: e.target.value})}
+              >
+                <option value="new">New</option>
+                <option value="contacted">Contacted</option>
+                <option value="converted">Converted</option>
               </select>
+
               <textarea value={editingLead.notes} className={`w-full p-4 rounded-xl border outline-none h-24 resize-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50'}`} onChange={(e) => setEditingLead({...editingLead, notes: e.target.value})} />
               <button className="w-full bg-green-600 text-white font-black py-4 rounded-xl shadow-lg uppercase text-xs mt-4">Commit Changes</button>
             </form>
