@@ -3,14 +3,10 @@ import axios from "axios";
 import { 
   Search, Plus, Trash2, Edit3, Phone, Mail, Globe, 
   Lock, ShieldCheck, X, Send, Sun, Moon, BarChart3, 
-  PieChart, LayoutGrid, CheckCircle2 
+  PieChart, LayoutGrid, CheckCircle2, MessageSquare 
 } from "lucide-react";
 
 const App = () => {
-  // --- CONFIG ---
-  // If your backend routes in server.js are app.use('/api/leads', leadRoutes)
-  const API_BASE = "https://future-fs-02-v64z.onrender.com/api/leads";
-
   // --- STATES ---
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
@@ -31,7 +27,8 @@ const App = () => {
 
   const fetchLeads = async () => {
     try {
-      const res = await axios.get(API_BASE);
+      // Using full link for clarity
+      const res = await axios.get("https://future-fs-02-v64z.onrender.com/api/leads");
       setLeads(res.data);
     } catch (err) { 
       console.error("Fetch error", err); 
@@ -41,7 +38,8 @@ const App = () => {
   const handleAddLead = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(API_BASE, formData);
+      // Using full link for clarity
+      await axios.post("https://future-fs-02-v64z.onrender.com/api/leads", formData);
       setIsAddModalOpen(false);
       fetchLeads();
       setFormData({ name: "", email: "", phone: "", source: "LinkedIn", status: "new", notes: "" });
@@ -53,7 +51,8 @@ const App = () => {
   const handleUpdateLead = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`${API_BASE}/${editingLead._id}`, editingLead);
+      // Using full link for clarity
+      await axios.put(`https://future-fs-02-v64z.onrender.com/api/leads/${editingLead._id}`, editingLead);
       setEditingLead(null);
       fetchLeads();
     } catch (err) { 
@@ -64,7 +63,8 @@ const App = () => {
   const deleteLead = async (id) => {
     if (window.confirm("Permanent delete this record?")) {
       try {
-        await axios.delete(`${API_BASE}/${id}`);
+        // Using full link for clarity
+        await axios.delete(`https://future-fs-02-v64z.onrender.com/api/leads/${id}`);
         fetchLeads();
       } catch (err) { 
         alert("Delete failed"); 
@@ -103,16 +103,14 @@ const App = () => {
   return (
     <div className={`min-h-screen w-full transition-colors duration-700 ${darkMode ? 'bg-[#030508] text-slate-300' : 'bg-slate-50 text-slate-900'}`}>
       
-      {/* 3D Background Glows */}
       {darkMode && <div className="fixed inset-0 -z-10"><div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[40%] bg-blue-600/5 rounded-full blur-[140px]"></div></div>}
 
       <div className="max-w-[1600px] mx-auto px-6 py-10">
         
-        {/* HEADER */}
         <header className={`flex justify-between items-center mb-10 p-8 rounded-[2.5rem] border backdrop-blur-2xl transition-all ${darkMode ? 'bg-white/[0.03] border-white/10 shadow-2xl' : 'bg-white border-slate-200 shadow-lg'}`}>
           <div>
             <h1 className={`text-3xl font-black italic tracking-tighter ${darkMode ? 'text-white' : 'text-slate-900'}`}>CLIENTCONNECT <span className="text-blue-600">PRO</span></h1>
-            <p className="text-[9px] font-black uppercase tracking-[0.4em] opacity-40">Command Center v2.0</p>
+            <p className="text-[9px] font-black uppercase tracking-[0.4em] opacity-40">Command Center v3.0</p>
           </div>
           <div className="flex items-center gap-5">
             <button onClick={() => setDarkMode(!darkMode)} className={`p-3 rounded-xl transition-all hover:rotate-12 ${darkMode ? 'bg-white/5 text-yellow-400' : 'bg-slate-100 text-slate-600'}`}>
@@ -124,7 +122,6 @@ const App = () => {
 
         <div className="flex flex-col lg:flex-row gap-8">
           
-          {/* MAIN TABLE (LEFT) */}
           <div className="flex-1">
             <div className={`rounded-[3rem] border overflow-hidden shadow-2xl backdrop-blur-xl ${darkMode ? 'bg-white/[0.02] border-white/10' : 'bg-white border-slate-200'}`}>
               <div className="p-8 border-b border-white/5 flex justify-between items-center">
@@ -140,7 +137,7 @@ const App = () => {
               <table className="w-full text-left">
                 <thead className={`text-[10px] font-black uppercase tracking-[0.2em] ${darkMode ? 'bg-white/5 text-slate-500' : 'bg-slate-100 text-slate-400'}`}>
                   <tr>
-                    <th className="px-8 py-5">Client Identity</th>
+                    <th className="px-8 py-5">Client Identity & Notes</th>
                     <th className="px-8 py-5">Source</th>
                     <th className="px-8 py-5">Status</th>
                     <th className="px-8 py-5 text-right">Actions</th>
@@ -152,6 +149,12 @@ const App = () => {
                       <td className="px-8 py-7">
                         <p className={`font-black uppercase text-sm ${darkMode ? 'text-white' : 'text-slate-800'}`}>{l.name}</p>
                         <p className="text-[10px] font-bold opacity-50 flex items-center gap-1 mt-1"><Mail size={12}/>{l.email}</p>
+                        {l.notes && (
+                          <div className="mt-2 p-2 rounded-lg bg-blue-500/5 border border-blue-500/10 text-[11px] italic text-blue-400 flex gap-2">
+                            <MessageSquare size={12} className="shrink-0 mt-0.5" />
+                            <span>{l.notes}</span>
+                          </div>
+                        )}
                       </td>
                       <td className="px-8 py-7 text-[10px] font-black text-blue-500 uppercase tracking-widest"><Globe className="inline mr-1" size={12}/> {l.source}</td>
                       <td className="px-8 py-7">
@@ -172,7 +175,6 @@ const App = () => {
             </div>
           </div>
 
-          {/* ANALYTICS SIDEBAR (RIGHT) */}
           <aside className="w-full lg:w-80 space-y-6">
             <div className={`p-8 rounded-[2.5rem] border shadow-2xl ${darkMode ? 'bg-white/[0.03] border-white/10' : 'bg-white border-slate-200'}`}>
               <div className="flex items-center gap-3 mb-8">
@@ -196,41 +198,50 @@ const App = () => {
                 ))}
               </div>
             </div>
-            <div className={`p-6 rounded-[2rem] border text-center ${darkMode ? 'bg-blue-600/10 border-blue-600/20' : 'bg-blue-50 border-blue-100'}`}>
-               <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Conversion Rate</p>
-               <p className="text-3xl font-black text-blue-600 mt-1">{stats.total > 0 ? Math.round((stats.converted / stats.total) * 100) : 0}%</p>
-            </div>
           </aside>
         </div>
       </div>
 
-      {/* --- ADD MODAL --- */}
+      {/* ADD MODAL */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-black/60">
           <div className={`w-full max-w-lg rounded-[2.5rem] border p-8 shadow-2xl relative ${darkMode ? 'bg-[#0f1217] border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
             <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-black uppercase italic">New Client</h2><X className="cursor-pointer" onClick={() => setIsAddModalOpen(false)} /></div>
             <form className="space-y-4" onSubmit={handleAddLead}>
-              <input type="text" placeholder="Name" required className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10' : 'bg-slate-50 border-slate-200'}`} onChange={(e) => setFormData({...formData, name: e.target.value})} />
-              <input type="email" placeholder="Email" required className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10' : 'bg-slate-50 border-slate-200'}`} onChange={(e) => setFormData({...formData, email: e.target.value})} />
-              <select className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10' : 'bg-slate-50 border-slate-200'}`} onChange={(e) => setFormData({...formData, status: e.target.value})}>
-                <option value="new">New</option><option value="contacted">Contacted</option><option value="converted">Converted</option>
-              </select>
+              <input type="text" placeholder="Name" required className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50 border-slate-200'}`} onChange={(e) => setFormData({...formData, name: e.target.value})} />
+              <input type="email" placeholder="Email" required className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50 border-slate-200'}`} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+              
+              {/* --- NEW NOTES FIELD --- */}
+              <textarea 
+                placeholder="Internal Notes (e.g., Met at B.C. Roy ACM event...)" 
+                className={`w-full p-4 rounded-xl border outline-none h-24 resize-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50 border-slate-200'}`}
+                onChange={(e) => setFormData({...formData, notes: e.target.value})}
+              />
+
               <button className="w-full bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg uppercase text-xs tracking-widest mt-4">Save To Cloud</button>
             </form>
           </div>
         </div>
       )}
 
-      {/* --- EDIT MODAL --- */}
+      {/* EDIT MODAL */}
       {editingLead && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-black/60">
           <div className={`w-full max-w-lg rounded-[2.5rem] border p-8 shadow-2xl relative ${darkMode ? 'bg-[#0f1217] border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
             <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-black uppercase italic">Modify Data</h2><X className="cursor-pointer" onClick={() => setEditingLead(null)} /></div>
             <form className="space-y-4" onSubmit={handleUpdateLead}>
-              <input type="text" value={editingLead.name} className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10' : 'bg-slate-50 border-slate-200'}`} onChange={(e) => setEditingLead({...editingLead, name: e.target.value})} />
-              <select value={editingLead.status} className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10' : 'bg-slate-50 border-slate-200'}`} onChange={(e) => setEditingLead({...editingLead, status: e.target.value})}>
+              <input type="text" value={editingLead.name} className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50 border-slate-200'}`} onChange={(e) => setEditingLead({...editingLead, name: e.target.value})} />
+              <select value={editingLead.status} className={`w-full p-4 rounded-xl border outline-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50 border-slate-200'}`} onChange={(e) => setEditingLead({...editingLead, status: e.target.value})}>
                 <option value="new">New</option><option value="contacted">Contacted</option><option value="converted">Converted</option>
               </select>
+
+              {/* --- EDIT NOTES FIELD --- */}
+              <textarea 
+                value={editingLead.notes} 
+                className={`w-full p-4 rounded-xl border outline-none h-24 resize-none ${darkMode ? 'bg-black/40 border-white/10 text-white' : 'bg-slate-50 border-slate-200'}`}
+                onChange={(e) => setEditingLead({...editingLead, notes: e.target.value})}
+              />
+
               <button className="w-full bg-green-600 text-white font-black py-4 rounded-xl shadow-lg uppercase text-xs tracking-widest mt-4">Commit Changes</button>
             </form>
           </div>
